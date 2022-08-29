@@ -1,0 +1,21 @@
+{
+        order coraza_waf first
+}
+
+prod.lab.external:80 {
+        coraza_waf {
+                include /ruleset/coraza.conf
+                include /ruleset/prod.conf
+                include /ruleset/coreruleset/rules/*.conf
+        }
+        reverse_proxy juiceshop_prod:3000
+}
+
+testing.lab.external:80 {
+        coraza_waf {
+                include /ruleset/coraza.conf
+                include /ruleset/testing.conf
+                include /ruleset/coreruleset/rules/*.conf
+        }
+        reverse_proxy juiceshop_testing:3000
+}

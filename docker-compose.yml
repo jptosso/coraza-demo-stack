@@ -1,0 +1,52 @@
+services:
+  caddy:
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    volumes:
+      - ./Caddyfile:/coraza/Caddyfile
+      - ./ruleset:/ruleset
+      - audit:/audit
+    ports:
+      - 8080:80
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.0
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - node.name=elastic
+      - discovery.type=single-node
+      - cluster.name=ELASTIC
+      - MEM_LIMIT=1073741824
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.4.0
+    restart: always
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+      - MEM_LIMIT=1073741824
+      - xpack.security.enabled=false
+    ports:
+      - 5601:5601
+    depends_on:
+      - elastic
+  logger:
+    build:
+      context: ./logger
+      dockerfile: Dockerfile
+    command: http://elastic:9200 /audit/
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on: 
+      - elastic
+    volumes:
+      - audit:/audit
+  juiceshop_prod:
+    image: bkimminich/juice-shop
+  juiceshop_testing:
+    image: bkimminich/juice-shop    
+volumes:
+  elasticsearch-data: {}
+  audit: {}
