@@ -4,7 +4,7 @@ services:
       context: ./caddy
       dockerfile: Dockerfile
     volumes:
-      - ./Caddyfile:/coraza/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - ./ruleset:/ruleset
       - audit:/audit
     ports:
